@@ -1,0 +1,104 @@
+﻿@using X.PagedList.Mvc.Core;
+@using X.PagedList;
+@inject AppDbContext context
+@model IPagedList<Product>
+@{
+    ViewBag.Title = "Dang mục lọc nước";
+    var info = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+}
+<img style="width: 100%" src="~/images/thuonghieu/MLN-01-1200x200.jpg" />
+<button type="button" class="btn btn-primary btn-lg btn-block mt-3"><strong>Máy lọc nước</strong></button>
+<div class=" row">
+    <div class=" col-9 bg-light">
+        <div class=" row">
+            @foreach (var steam in Model)
+            {
+                <div class="col-md-3 col-lg-3  card-group">
+                    <div class="card rounded my-3 bg-transparent py-2">
+                        <a asp-controller="Home" asp-action="Detail" asp-route-id="@steam.ProductId">
+                            @{
+                                if (steam.Images.Count == 0)
+                                {
+                                    <img src="~/images/anh/no-product-image-570x456.png" style="height: 150px; max-width: 90%;" class="mx-auto d-block">
+                                }
+                                else
+                                {
+                                    <img src="@Url.Content("~/images/"+ steam.Images.First().ImageName)" alt="@steam.ProductName" style="height: 150px; max-width: 90%;" class="mx-auto d-block">
+                                }
+                            }
+                        </a>
+                        <h6 class="card-body">
+                            <a asp-controller="Home" asp-action="Detail" asp-route-id="@steam.ProductId" class="card-link">
+                                @steam.ProductName
+                            </a>
+                        </h6>
+                        <h6 class="card-footer text-center text-danger bg-transparent">
+                            @String.Format(info, "{0:#,##0 đ}", steam.ProductPrice)
+                        </h6>
+                    </div>
+                </div>
+            }
+        </div>
+        <div>
+            <p class=" text-success">  Trang @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount</p>
+            @Html.PagedListPager(Model, page => Url.Action($"ShowFan", new { page }))
+        </div>
+    </div>
+
+    <div class=" col-3 bg-white">
+        <br /><br />
+        <form asp-controller="Home" asp-action="FilterProduct" method="post" enctype="multipart/form-data" class="form-group">
+            <div class="list-group-item">
+                <h5 class="bg-secondary rounded text-light py-2 text-center">Lọc sản phẩm <i class="fas fa-search"></i></h5>
+            </div>
+            <div class="list-group-item">
+                <select name="categoryId" class="custom-select form-control" id="categoryId">
+                    <option>Chọn danh mục</option>
+
+                    @foreach (var ctg in context.Categories)
+                    {
+                        <option value="@ctg.CategoryId">@ctg.CategoryName</option>
+                    }
+
+                </select>
+            </div>
+            <div class="list-group-item">
+                <select name="brandId" class="custom-select form-control" id="brandId">
+                    <option>Chọn thương hiệu</option>
+
+                    @foreach (var brand in context.Brands)
+                    {
+                        <option value="@brand.BrandId">@brand.BrandName</option>
+                    }
+
+                </select>
+            </div>
+
+            <div class="list-group-item">
+                <select name="price" class="custom-select form-control" id="categoryId">
+                    <option>Chọn mức giá</option>
+                    <option value="1">Từ 1-4 triệu</option>
+                    <option value="2">Từ 4-8 triệu</option>
+                    <option value="3">Trên 8 triệu</option>
+                </select>
+            </div>
+            <div class="list-group-item">
+                <select name="sortByPrice" class="custom-select form-control" id="sortByPrice">
+                    <option>Sắp xếp theo giá</option>
+                    <option value="1">Tăng dần</option>
+                    <option value="2">Giảm dần</option>
+                </select>
+            </div>
+            <div class="list-group-item text-center">
+                <input class="btn btn-primary" type="submit" value="Lọc sản phẩm" />
+            </div>
+        </form>
+    </div>
+</div>
+<style>
+    .pagination > li {
+        border: 1px solid #000000;
+        padding: 0 10px !important;
+        margin-right: 1px;
+    }
+</style>

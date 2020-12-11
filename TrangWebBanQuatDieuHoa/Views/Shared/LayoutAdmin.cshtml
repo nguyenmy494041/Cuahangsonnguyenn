@@ -1,0 +1,221 @@
+﻿@inject SignInManager<User> signInManager
+@inject UserManager<User> userManager
+@{
+    var user = await userManager.GetUserAsync(User);
+    IList<string> roles = new List<string>();
+    if (user != null)
+    {
+        var userin = Task.Run(async () => await userManager.FindByIdAsync(user.Id)).Result;
+        roles = Task.Run(async () => await userManager.GetRolesAsync(userin)).Result;
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/lib/datatable/css/jquery.dataTables.css" rel="stylesheet" />
+    <link href="~/lib/datatable/css/dataTables.bootstrap4.css" rel="stylesheet" />
+    <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+    <link href="~/css/sites.css" rel="stylesheet" />
+    <link href="~/css/admin.css" rel="stylesheet" />
+    @*summernote*@
+    @*<link href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">*@
+
+</head>
+<body>
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            @*<a class="sidebar-brand d-flex align-items-center justify-content-center" asp-controller="Movie" asp-action="Index">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-laugh-wink"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">TAnime Admin</div>
+            </a>*@
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item active">
+                <a class="nav-link" asp-controller="Home" asp-action="Show">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Trang chủ</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="Brand" asp-action="Index">
+                    <i class="fas fa-fw fa-film"></i>
+                    <span>Thương hiệu</span>
+                </a>
+
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="Category" asp-action="Index">
+                    <i class="fas fa-fw fa-closed-captioning"></i>
+                    <span>Loại sản phẩm</span>
+                </a>
+
+            </li>
+
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCountry" aria-expanded="true" aria-controls="collapseCountry">
+                    <i class="fas fa-fw fa-flag"></i>
+                    <span>Sản phẩm</span>
+                </a>
+                <div id="collapseCountry" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Sản phẩm</h6>
+                        <a class="collapse-item" asp-controller="Product" asp-action="Create">Thêm mới sản phẩm</a>
+                        <a class="collapse-item" asp-controller="Product" asp-action="ShowFan" style="width:auto !important;">Quạt điều hòa</a>
+                        <a class="collapse-item" asp-controller="Product" asp-action="ShowFilter" style="width:auto !important;">Máy lọc nước</a>
+                        <a class="collapse-item" asp-controller="Product" asp-action="ShowBottle" style="width:auto !important;">Bình nóng lạnh</a>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOrder" aria-expanded="true" aria-controls="collapseOrder">
+                    <i class="fas fa-fw fa-flag"></i>
+                    <span>Đơn hàng</span>
+                </a>
+                <div id="collapseOrder" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Đơn hàng</h6>
+                        <a class="collapse-item" asp-controller="Order" asp-action="OrderShowAdmin">Đơn đặt hàng</a>
+                        <a class="collapse-item" asp-controller="Order" asp-action="Dondagiao" style="width:auto !important;">Đơn hàng đã xác nhận</a>
+
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="UsersManager" asp-action="Index">
+                    <i class="fas fa-fw fa-file-video"></i>
+                    <span>Người dùng</span>
+                </a>
+
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="RolesManager" asp-action="Index">
+                    <i class="fas fa-fw fa-film"></i>
+                    <span>Vai trò</span>
+                </a>
+
+            </li>
+
+            @*<li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEpisode" aria-expanded="true" aria-controls="collapseEpisode">
+                        <i class="fas fa-fw fa-file-video"></i>
+                        <span>Tập Phim</span>
+                    </a>
+                    <div id="collapseEpisode" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Tập Phim</h6>
+                            <a class="collapse-item" asp-controller="Episode" asp-action="Index">Danh Sách Tập Phim</a>
+                            <a class="collapse-item" asp-controller="Episode" asp-action="Create" style="width:auto !important;">Thêm Tập Phim</a>
+                        </div>
+                    </div>
+                </li>*@
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+        </ul>
+        <!-- End of Sidebar -->
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <!-- End of Topbar -->
+                <!-- Begin Page Content -->
+
+                <div class="container">
+                    <main role="main" class="pt-3">
+                        @RenderBody()
+                    </main>
+
+                </div>
+
+            </div>
+            <!-- End of Main Content -->
+            <!-- Footer -->
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+
+    <!-- End of Page Wrapper -->
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/lib/jquery-validate/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
+    <script src="~/lib/datatablenet/jquery.dataTables.js"></script>
+    <script src="~/lib/jquery-easing/jquery.easing.js"></script>
+    <script src="~/lib/font-awesome/js/all.js"></script>
+    <script src="~/lib/chart/Chart.js"></script>
+
+    <script src="~/js/Admind2.js"></script>
+
+
+    @RenderSection("Scripts", required: false)
+    @RenderSection("tinyMCE", false)
+</body>
+</html>

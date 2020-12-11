@@ -1,0 +1,132 @@
+﻿@inject SignInManager<User> signInManager
+@inject UserManager<User> userManager
+@{
+    var user = await userManager.GetUserAsync(User);
+    IList<string> roles = new List<string>();
+    if (user != null)
+    {
+        var userin = Task.Run(async () => await userManager.FindByIdAsync(user.Id)).Result;
+        roles = Task.Run(async () => await userManager.GetRolesAsync(userin)).Result;
+    }
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CuaHangQuatNuoc</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="~/lib/bootstrap/css/bootstrap.css" rel="stylesheet" />    
+    @*https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css*@
+
+    <link href="~/lib/datatable/css/dataTables.bootstrap4.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body class=" bg-light">
+    <header>
+        <span class="d-block p-2 bg-info text-white container"></span>
+        <nav class="navbar navbar-expand-lg navbar-light bg-warning container mb-2">
+            <img width="50" height="50" src="~/images/users/tải xuống.png"/>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse ml-4" id="navbarSupportedContent">
+                <ul class="navbar-nav ">
+                    <li class="nav-item active">
+                        <a class="nav-link" asp-controller="Home" asp-action="Show">Trang chủ <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Danh mục sản phẩm
+                        </a>
+                        <div class="dropdown-menu bg-light" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" asp-controller="Home" asp-action="ShowFan">Quạt điều hòa</a>
+                            <a class="dropdown-item" asp-controller="Home" asp-action="ShowFilter">Lọc nước</a>
+                            <a class="dropdown-item" asp-controller="Home" asp-action="ShowBottle">Bình nóng lạnh</a>
+                        </div>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" asp-controller="Home" asp-action="History">Lịch sử mua hàng</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav" style="margin:0px 50px 0px 50px;">
+                    <li class="nav-item active">
+                        <form asp-controller="Home" asp-action="Search" method="post" enctype="multipart/form-data" class="form-inline my-2 my-lg-0 mr-5 ">
+                            <input id="timkiem" class="form-control mr-sm-2" type="text" name="Search" placeholder="Sản phẩm cần tìm" aria-label="Search">
+                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                        </form>
+                    </li>
+                </ul>
+                <ul class="navbar-nav" style="position: absolute; right: 30px;">
+                    @if (signInManager.IsSignedIn(User))
+                    {
+                        @if (roles.Count != 0)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Brand" asp-action="Index">Quản lý <span class="sr-only">(current)</span></a>
+                            </li>
+                        }
+                        var currentUser = userManager.FindByNameAsync(User.Identity.Name).Result;
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                                @user.Name
+                            </a>
+                            <div class="dropdown-menu " style="margin-left:auto">
+
+                                <a class="dropdown-item" asp-controller="Brand" asp-action="Index">Trang quản trị</a>
+
+                                <a class="dropdown-item" asp-controller="Account" asp-action="Logout">Đăng xuất</a>
+                            </div>
+                        </li>
+
+
+                    }
+                    else
+                    {
+                        <li class="nav-item" style="float:right">
+                            <a class="nav-link" asp-controller="Account" asp-action="Login">Đăng nhập<span class="sr-only">(current)</span></a>
+                        </li>
+                        @*<li style="margin-left:auto" class="nav-item"><a asp-controller="Account" asp-action="Login" class="nav-link">Login</a></li>
+                            <li style="margin-left:auto" class="nav-item"><a asp-controller="Account" asp-action="Register" class="nav-link">Sign Up</a></li>*@
+                    }
+                </ul>
+                <!--<form asp-controller="Home" asp-action="Search" method="post" enctype="multipart/form-data" class="form-inline my-2 my-lg-0 mr-5 ">
+                <input id="timkiem" class="form-control mr-sm-2" type="text" name="Search" placeholder="Sản phẩm cần tìm" aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
+                @*<a  >Tìm kiếm</a>*@
+                <!--</form>-->
+
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2020 - CuaHangQuatNuoc - <a asp-area="" asp-controller="Order" asp-action="Danhsachtinhthanh">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/jquery-validate/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+
+    <script src="~/lib/font-awesome/js/all.js"></script>
+
+    <script src="~/lib/datatablenet/jquery.dataTables.js"></script>
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>

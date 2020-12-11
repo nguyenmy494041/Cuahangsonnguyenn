@@ -1,0 +1,76 @@
+﻿@model List<Product>
+@{
+    ViewBag.Title = "Danh sách quạt điều hòa";
+    Layout = "~/Views/Shared/LayoutAdmin.cshtml";
+    var info = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+}
+<div class=" col-11 container bg-light">
+    <br />
+    <h3 class=" text-center text-danger">Danh sách các sản phẩm quạt điều hòa</h3>
+    <br />
+    <table id="dataTable" class=" table table-bordered table-hover mt-3">
+        <thead class=" thead-light">
+            <tr>
+                <th>STT</th>
+                <th>Mã sản phẩm</th>
+                <th>Tên sản phẩm </th>
+                <th>Giá sản phẩm</th>
+                <th>Công suất</th>
+                <th>Hình sản phẩm</th>
+                <th>Thao tác </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ProductId</td>
+                    <td>@item.ProductCode</td>
+                    <td>@item.ProductName</td>
+                    <td> @String.Format(info, "{0:#,##0 đ}", item.ProductPrice)</td>
+                    <td>@item.Wattage W</td>
+                    <td>
+                        @if (item.Images == null || item.Images.Count == 0)
+                        {
+                            <div> Chưa có hình sản phẩm</div>
+                        }
+                        else
+                        {
+                            <img width="100" src="~/images/@item.Images.ToList()[0].ImageName" />
+                        }
+                    </td>
+                    <td>
+                        <a data-toggle="tooltip" title="Sửa" style="margin:0px 5px" asp-controller="Product" asp-action="Edit" asp-route-id="@item.ProductId"><i class="fa fa-edit"></i></a>
+                        <a data-toggle="tooltip" title="Xóa" style="margin:0px 5px" href="javascript:void(0)" class="text-danger" onclick="fan.delete('@item.ProductId')"><i class="fa fa-trash"></i></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').dataTable(
+                {
+                    "columnDefs": [
+                        {
+                            "targets": 5,
+                            "orderable": false,
+                            "searchable": false
+                        },
+                        {
+                            "targets": 6,
+                            "orderable": false,
+                            "searchable": false
+                        },
+                    ]
+                }
+            );
+        });
+    </script>
+    <script src="~/lib/bootbox/bootbox.js"></script>
+    <script src="~/js/deletefan.js"></script>
+
+}

@@ -1,0 +1,58 @@
+﻿@model List<Brand>
+
+@{
+    ViewBag.Title = "Danh sách các thương hiệu sản phẩm";
+
+    Layout = "~/Views/Shared/LayoutAdmin.cshtml";
+}
+<br />
+<h4 class=" text-center">Danh sách các thương hiệu sản phẩm</h4>
+<br />
+<div class=" col-10 container">
+    <a asp-controller="Brand" asp-action="Create" class=" btn btn-info">Thêm mới</a>
+    <br /><br />
+    <table id="dataTable" class=" table table-bordered table-hover mt-3">
+        <thead class=" thead-light">
+            <tr>
+                <th>Mã</th>
+                <th>Tên thương hiệu</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var item in Model)
+            {
+
+                <tr>
+                    <td>@item.BrandId</td>
+                    <td>@item.BrandName</td>
+                    <td>
+                        <a data-toggle="tooltip" title="Sửa" style="margin:0px 5px" asp-controller="Brand" asp-action="Edit" asp-route-id="@item.BrandId"><i class="fa fa-edit"></i></a>
+                        <a data-toggle="tooltip" title="Xóa" style="margin:0px 5px" href="javascript:void(0)" class="text-danger" onclick="brand.delete('@item.BrandId')"><i class="fa fa-trash"></i></a>                      
+                </tr>
+
+
+            }
+
+        </tbody>
+    </table>
+</div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').dataTable(
+                {
+                    "columnDefs": [
+                        {
+                            "targets": 2,
+                            "orderable": false
+                        },
+                    ]
+                }
+            );
+        });
+    </script>
+    <script src="~/lib/bootbox/bootbox.js"></script>
+    <script src="~/js/deletebrand.js"></script>
+}

@@ -1,0 +1,214 @@
+﻿@using X.PagedList.Mvc.Core;
+@using X.PagedList;
+@model IPagedList<Product>
+@inject AppDbContext context
+@{
+    ViewBag.Title = "loc san phẩm";
+    var info = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+    var search = ViewBag.search as LocSanPham;
+}
+
+
+<div class="row my-3">
+    <div class="col-lg-3">
+
+        <form asp-controller="Home" asp-action="FilterProduct" method="post" class="form-group">
+            <div class="list-group-item">
+                <h5 class="bg-secondary rounded text-light py-2 text-center">Lọc sản phẩm <i class="fas fa-search"></i></h5>
+            </div>
+            <div class="list-group-item">
+                <select name="categoryId" class="custom-select form-control" id="categoryId" onchange="changeCategory(this.value);">
+                    <option value="@null">Chọn danh mục</option>
+
+                    @foreach (var ctg in context.Categories)
+                    {
+                        <option value="@ctg.CategoryId">@ctg.CategoryName</option>
+                    }
+
+                </select>
+            </div>
+            <div class="list-group-item">
+                <select name="brandId" class="custom-select form-control" id="brandId" onchange="changeCategory(this.value);">
+                    <option value="@null">Chọn thương hiệu</option>
+
+                    @foreach (var brand in context.Brands)
+                    {
+                        <option value="@brand.BrandId">@brand.BrandName</option>
+                    }
+
+                </select>
+            </div>
+
+            <div class="list-group-item">
+                <select name="price" class="custom-select form-control" id="priceId" onchange="changeCategory(this.value);">
+                    <option value="@null">Chọn mức giá</option>
+                    <option value="1">Từ 1-4 triệu</option>
+                    <option value="2">Từ 4-8 triệu</option>
+                    <option value="3">Trên 8 triệu</option>
+                </select>
+            </div>
+            <div class="list-group-item">
+                <select name="sortByPrice" class="custom-select form-control" id="sortByPrice" onchange="changeCategory(this.value);">
+                    <option value="@null">Sắp xếp theo giá</option>
+                    <option value="1">Tăng dần</option>
+                    <option value="2">Giảm dần</option>
+                </select>
+            </div>
+            <div class="list-group-item text-center">
+                <input class="btn btn-primary" type="submit" value="Lọc sản phẩm" />
+            </div>
+        </form>
+    </div>
+
+    <div class="col-lg-9">
+
+        <div id="khongtimthay"></div>
+        @if (Model.Count > 0)
+        {
+        <div id="dieukienloc">
+            <h5 class=" text-danger">Lọc các sản phẩm theo:</h5>
+            @if (search.categoryId != null)
+            {
+                <span>Danh mục:</span> <span class=" text-danger">@context.Categories.Find(search.categoryId).CategoryName</span>
+            }
+
+            @if (search.brandId != null)
+            {
+                <span>&nbsp;&nbsp;&nbsp; Thương hiệu:</span><span class=" text-danger"> @context.Brands.Find(search.brandId).BrandName</span>
+            }
+
+            @if (search.price == 1)
+            {
+                <span>&nbsp;&nbsp;&nbsp; Giá:</span><span class=" text-danger"> Từ 1-4 triệu</span>
+            }
+            else if (search.price == 2)
+            {
+                <span>&nbsp;&nbsp;&nbsp; Giá:</span><span class=" text-danger"> Từ 4-8 triệu</span>
+            }
+            else if (search.price == 3)
+            {
+                <span>&nbsp;&nbsp;&nbsp; Giá:</span><span class=" text-danger"> Trên 8 triệu</span>
+            }
+
+            @if (search.sortByPrice == 1)
+            {
+                <span>&nbsp;&nbsp;&nbsp; Sắp xếp:</span><span class=" text-danger"> Tăng dần</span>
+            }
+            @if (search.sortByPrice == 2)
+            {
+                <span>&nbsp;&nbsp;&nbsp;  Sắp xếp:</span><span class=" text-danger">Giảm dần</span>
+            }
+        </div>
+            <div id="productSearch" class="row">
+
+                @foreach (var steam in Model)
+                {
+
+                    <div class="col-md-3 col-lg-3  card-group">
+                        <div class="card rounded my-3 bg-transparent py-2">
+                            <a asp-controller="Home" asp-action="Detail" asp-route-id="@steam.ProductId">
+                                @if (steam.Images.Count > 0)
+                                {
+                                    <img src="@Url.Content("~/images/" + steam.Images.First().ImageName)" alt="@steam.ProductName" style="height: 150px; max-width: 90%;" class="mx-auto d-block">
+                                }
+                                else
+                                {
+                                    <img src="~/images/anh/no-product-image-570x456.png" style="height: 150px; max-width: 90%;" class="mx-auto d-block">
+                                }
+
+                            </a>
+                            <h6 class="card-body">
+                                <a asp-controller="Home" asp-action="Detail" asp-route-id="@steam.ProductId" class="card-link">
+                                    @steam.ProductName
+                                </a>
+                            </h6>
+                            <h6 class="card-footer text-center text-danger bg-transparent">
+                                @String.Format(info, "{0:#,##0 đ}", steam.ProductPrice)
+                            </h6>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div id="phantrang">
+                <br />
+                <p class=" text-success">  Trang @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount</p>
+
+                @Html.PagedListPager(Model, page => Url.Action($"FilterProduct", new { categoryId = search.categoryId, brandId = search.brandId, price = search.price, sortByPrice = search.sortByPrice, page }))
+
+            </div>
+
+        }
+        else
+        { <h4 class="text-danger">Không tìm thấy sản phẩm phù hợp</h4>}
+    </div>
+</div>
+<style>
+    .pagination > li {
+        border: 1px solid #000000;
+        padding: 0 10px !important;
+        margin-right: 1px;
+    }
+</style>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+@*<script src="~/js/site.js" asp-append-version="true"></script>*@
+<script src="~/lib/jquery-validate/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+<script src="~/lib/font-awesome/js/all.js"></script>
+<script src="~/lib/datatablenet/jquery.dataTables.js"></script>
+<script type="text/javascript">
+
+    function changeCategory(v) {
+        let categoryId = ($('#categoryId').val() == '') ? $('#categoryId').val(null) : $('#categoryId').val();
+        let brandId = ($('#brandId').val() == '') ? $('#brandId').val(null) : $('#brandId').val();
+        let price = ($('#priceId').val() == '') ? $('#priceId').val(null) : $('#priceId').val();
+        let sortByPrice = ($('#sortByPrice').val() == '') ? $('#sortByPrice').val(null) : $('#sortByPrice').val();
+        $.ajax({
+            url: `/Home/Loc/${categoryId}/${brandId}/${price}/${sortByPrice}`,
+            method: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            success: function (data) {
+                $("#productSearch").empty();
+                $("#phantrang").empty();
+                $("#dieukienloc").empty();
+                console.log(data.products);
+
+                if (data.products == "") {
+                    console.log("hello");
+
+                    $("#productSearch").append(`
+                            <h4 class="text-danger">Không tìm thấy sản phẩm phù hợp</h4>
+                        `);
+                }
+
+                $.each(data.products, function (i, v) {
+
+                    $("#productSearch").append(`
+
+                   <div class="col-md-3 col-lg-3  card-group">
+                        <div class="card rounded my-3 bg-transparent py-2">
+                            <a href="/Home/Detail/${v.productId}">
+                                    <img src="/images/${v.images[0].imageName}" alt="${v.productName}" style="height: 150px; max-width: 90%;" class="mx-auto d-block">
+                            </a>
+                            <h6 class="card-body">
+                                <a href="/Home/Detail/${v.productId}" class="card-link">
+                                   ${v.productName}
+                                </a>
+                            </h6>
+                            <h6 class="card-footer text-center text-danger bg-transparent">
+                              ${v.productPrice.toLocaleString('vi', { style: 'currency', currency: 'VND' })}
+                            </h6>
+                        </div>
+                    </div>
+                `);
+                });
+              
+            }
+        });
+    }
+
+
+</script>
